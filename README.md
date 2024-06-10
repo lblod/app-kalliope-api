@@ -1,7 +1,7 @@
 # JSON-LD Delta Service
 
-Provides a JSON-LD representation of the consolidated [delta-notifier](https://github.com/mu-semtech/delta-notifier)
-messages
+Provides a JSON-LD representation of the consolidated [delta-notifier](https://github.com/mu-semtech/delta-notifier) messages. 
+The services is based on the [mu-javascript-template](https://github.com/mu-semtech/mu-javascript-template). 
 
 ## Configuration
 
@@ -123,3 +123,25 @@ The JSON-LD response contains:
   }
 }
 ```
+
+## Development
+
+### Debugging
+
+To debug the service, you can comment `# image: lblod/jsonld-delta-service:0.5.6` in `docker-compose.yml` and use the following configuration in `docker-compose.dev.yml`:
+
+```
+services:
+  kalliope-api:
+    build: ../jsonld-delta-service # path to the service relative to the docker-compose file
+    environment:
+      NODE_ENV: "development" # set the environment to development
+    ports:
+      - 9229:9229 # expose the debugging port
+```
+
+## Tools
+
+- **ESLint** is used to lint your code and enforce code quality.
+- **Prettier** is used to format your code consistently.
+- **JSDoc** is used to add type annotations and generate documentation. 
