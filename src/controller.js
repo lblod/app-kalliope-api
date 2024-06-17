@@ -1,7 +1,8 @@
-const { fetchLatestDumpFilePath } = require('./service.js');
-const { ORGANIZATIONS_DUMP_SUBJECT } = require('./constant.js');
+const { fetchLatestDumpFilePath } = require('./service');
+const { ORGANIZATIONS_DUMP_SUBJECT } = require('./constant');
 const fs = require('node:fs/promises');
-const { convertTtlToJsonld } = require('./utils/convert-ttl-to-jsonld.js');
+const { turtleToJsonld } = require('./utils/turtleToJsonld');
+
 
 /**
  * @typedef {import('express').Request} Request
@@ -40,8 +41,7 @@ const consolidatedHandler = async (req, res) => {
   // console.log('Turtle:', turtle);
   // 4. Convert the dump file from TTL to JSON-LD format.
   console.log('Converting TTL to JSON-LD...');
-  console.log('ttlToJsonld:', convertTtlToJsonld);
-  const consolidatedGraph = await convertTtlToJsonld(turtle);
+  const consolidatedGraph = await turtleToJsonld(turtle);
 
   // 5. decorate the JSON-LD with a date and context
   console.log('Decorating JSON-LD with metadata...');

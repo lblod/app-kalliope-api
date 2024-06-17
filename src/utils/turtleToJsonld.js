@@ -1,7 +1,7 @@
 const { Parser, Store } = require('n3');
 const jsonld = require('jsonld');
 
-const convertTtlToJsonld = async (ttlString) => {
+const turtleToJsonld = async (ttlString) => {
   const quad = await parseTurtle(ttlString);
   const jsonld1 = await jsonld.fromRDF([...quad], {});
   const compacted = await jsonld.compact(jsonld1, {});
@@ -26,5 +26,5 @@ const parseTurtle = async (ttl) => {
 };
 
 module.exports = {
-  convertTtlToJsonld,
+  turtleToJsonld,
 };

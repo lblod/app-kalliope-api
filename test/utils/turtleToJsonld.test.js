@@ -1,9 +1,9 @@
 const assert = require('assert');
 const {
-  convertTtlToJsonld,
-} = require('../../src/utils/convert-ttl-to-jsonld.js');
+  turtleToJsonld,
+} = require('../../src/utils/turtleToJsonld');
 
-describe('convertTtlToJsonld', async () => {
+describe('turtleToJsonld', async () => {
   it('returns a JSON-LD object', async () => {
     const ttlString = `
 <http://data.lblod.info/id/adressen/1108f389f3c007a771b18aa0a6d26d68> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/locn#Address>.
@@ -42,7 +42,7 @@ describe('convertTtlToJsonld', async () => {
         },
       ],
     };
-    const jsonld = await convertTtlToJsonld(ttlString);
+    const jsonld = await turtleToJsonld(ttlString);
 
     assert.deepStrictEqual(jsonld, expected);
   });
