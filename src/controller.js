@@ -3,6 +3,7 @@ const { ORGANIZATIONS_DUMP_SUBJECT } = require('./constant');
 const fs = require('node:fs/promises');
 const { turtleToJsonld } = require('./utils/turtleToJsonld');
 
+const { isWhitelisted, authenticate } = require('./security/index');
 
 /**
  * @typedef {import('express').Request} Request
@@ -51,18 +52,6 @@ const consolidatedHandler = async (req, res) => {
   // 6. Return the converted result.
   console.log('Returning the converted result');
   res.status(200).type('application/ld+json').json(response);
-};
-
-const isWhitelisted = (ip) => {
-  console.log('IP address:', ip);
-
-  return true;
-};
-
-const authenticate = (authorization) => {
-  console.log('Authorization:', authorization);
-
-  return true;
 };
 
 const addMetadata = (consolidatedGraph, date) => {

@@ -13,7 +13,7 @@ Include the service in `docker-compose.yml`.
 
 ```
   jsonld-delta-service:
-    image: lblod/jsonld-delta-service:0.3.0
+    image: lblod/jsonld-delta-service:1.0.0
     volumes:
       - ./data/files:/share
       - ./config/kalliope:/config
@@ -21,7 +21,7 @@ Include the service in `docker-compose.yml`.
       SERVER_PORT: "80"
       LOGGING_LEVEL: "INFO"
       SPARQL_ENDPOINT: "http://database:8890/sparql"
-      SPRING_SECURITY_CONFIG: "/config/security.yml"
+      SECURITY_CONFIG_PATH: "/config/security.json"
 ```
 
 ### Configure the dispatcher
