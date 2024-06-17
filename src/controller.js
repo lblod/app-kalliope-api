@@ -17,12 +17,14 @@ const consolidatedHandler = async (req, res) => {
   // 1. Verify IP address (allow only whitelisted addresses).
   if (!isWhitelisted(req.socket.remoteAddress)) {
     res.status(403).send({ msg: 'Forbidden' });
+
     return;
   }
 
   // 2. Authenticate credentials (Basic access authentication).
   if (!authenticate(req.headers.authorization)) {
     res.status(401).send({ msg: 'Unauthorized' });
+
     return;
   }
 
@@ -53,11 +55,13 @@ const consolidatedHandler = async (req, res) => {
 
 const isWhitelisted = (ip) => {
   console.log('IP address:', ip);
+
   return true;
 };
 
 const authenticate = (authorization) => {
   console.log('Authorization:', authorization);
+
   return true;
 };
 
