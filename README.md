@@ -1,7 +1,7 @@
 # JSON-LD Delta Service
 
-Provides a JSON-LD representation of the consolidated [delta-notifier](https://github.com/mu-semtech/delta-notifier) messages. 
-The services is based on the [mu-javascript-template](https://github.com/mu-semtech/mu-javascript-template). 
+Provides a JSON-LD representation of the consolidated [delta-notifier](https://github.com/mu-semtech/delta-notifier) messages.
+The services is based on the [mu-javascript-template](https://github.com/mu-semtech/mu-javascript-template).
 
 ## Configuration
 
@@ -48,18 +48,18 @@ match "/v3/api-docs/*path", %{ layer: :api_services, accept: %{ json: true } } d
 - Create a file under `/config/kalliope/security.yml`
 - Paste the following:
 
- ```
-  application:
-  security:
-    enabled: true
-    source: /config/source.json
-    output: /config/out.json
-    allowedIpAddresses:
-      - 10.10.10.10 # list of whitelisted ips
+```
+ application:
+ security:
+   enabled: true
+   source: /config/source.json
+   output: /config/out.json
+   allowedIpAddresses:
+     - 10.10.10.10 # list of whitelisted ips
 server:
-  forward-headers-strategy: NATIVE
-  tomcat:
-    remote-ip-header: x-real-ip # letsencrypt proxy
+ forward-headers-strategy: NATIVE
+ tomcat:
+   remote-ip-header: x-real-ip # letsencrypt proxy
 
 ```
 
@@ -69,7 +69,7 @@ server:
   encrypted one under `config/kalliope/out.json`
 - Example of `/config/kalliope/source.json` :
 
-``` 
+```
      [
     {
       "username": "boris",
@@ -144,4 +144,4 @@ services:
 
 - **ESLint** is used to lint your code and enforce code quality.
 - **Prettier** is used to format your code consistently.
-- **JSDoc** is used to add type annotations and generate documentation. 
+- **JSDoc** is used to add type annotations and generate documentation.

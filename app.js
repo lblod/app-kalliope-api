@@ -1,8 +1,8 @@
-import { app, errorHandler } from 'mu';
+const { app, errorHandler } = require('mu');
+const consolidatedHandler = require('./src/controller.js').consolidatedHandler;
 
-app.get('/consolidated', function (req, res) { 
-  res.send('consolidated works!');
-});
+app.get('/consolidated', consolidatedHandler);
+
+app.use(errorHandler);
 
 console.log('jsonld-delta-service running on port 80');
-
