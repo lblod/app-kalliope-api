@@ -1,5 +1,5 @@
 const { isWhitelisted } = require('./is-whitelisted');
-const { authenticate } = require('./authenticate');
+const { authenticate, initAuthentication } = require('./authenticate');
 
 const configurationPath =
   process.env.SECURITY_CONFIG_PATH || '/config/security.json';
@@ -23,5 +23,5 @@ module.exports = {
   isWhitelisted: (ip) => isWhitelisted(getConfiguration(), ip),
   authenticate: (authorization) =>
     authenticate(getConfiguration(), authorization),
-  initSecurity: () => getConfiguration(),
+  initSecurity: () => initAuthentication(getConfiguration()),
 };

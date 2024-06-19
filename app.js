@@ -1,8 +1,15 @@
 const { app, errorHandler } = require('mu');
-const consolidatedHandler = require('./src/controller.js').consolidatedHandler;
+const { consolidatedHandler } = require('./src/controller.js');
+const { initSecurity } = require('./src/security/index.js');
 
-app.get('/consolidated', consolidatedHandler);
+const initService = async () => {
+  await initSecurity();
 
-app.use(errorHandler);
+  app.get('/consolidated', consolidatedHandler);
 
-console.log('jsonld-delta-service running on port 80');
+  app.use(errorHandler);
+
+  console.log('jsonld-delta-service running on port 80');
+};
+
+initService();
