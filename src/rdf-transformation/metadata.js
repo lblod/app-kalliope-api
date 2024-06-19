@@ -1,4 +1,15 @@
+/**
+ * Add metadata to the consolidated graph
+ *
+ * @param {Object} consolidatedGraph
+ * @param {Date} date
+ * @returns {Object} the consolidated graph with metadata
+ */
 const addMetadata = (consolidatedGraph, date) => {
+  if (typeof consolidatedGraph !== 'object' || !(date instanceof Date)) {
+    throw new TypeError('Invalid arguments');
+  }
+
   return {
     ...consolidatedGraph,
     '@context': {

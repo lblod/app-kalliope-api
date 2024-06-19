@@ -9,7 +9,8 @@ const fetchLatestDumpFilePath = async (subject) => {
         PREFIX nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#>
         PREFIX dct: <http://purl.org/dc/terms/>
         PREFIX dcat: <http://www.w3.org/ns/dcat#>
-        SELECT * WHERE {
+
+        SELECT ?physicalFile WHERE {
         ?sub dct:subject ${sparqlEscapeUri(subject)} ;
             dcat:distribution ?distribution.
         FILTER NOT EXISTS {
@@ -18,16 +19,19 @@ const fetchLatestDumpFilePath = async (subject) => {
         ?distribution 
             dct:subject ?file;
             dct:created ?created.
-        ?phyiscalFile nie:dataSource ?file. 
+        ?physicalFile nie:dataSource ?file. 
         }
     `;
-  const { results } = await query(queryString);
+  try {
+    const { results } = await query(queryString);
 
-  if (results.bindings.length) {
-    const binding = results.bindings[0];
-    console.log('binding:', binding);
+    if (results.bindings?.length) {
+      const binding = results.bindings[0];
 
-    return binding.phyiscalFile?.value;
+      return binding.physicalFile?.value;
+    }
+  } catch (error) {
+    console.error('Error executing SPARQL query:', error);
   }
 
   return null;

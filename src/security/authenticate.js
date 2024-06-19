@@ -11,10 +11,6 @@ const bcrypt = require('bcrypt');
  * @returns {Promise<boolean>} - Returns true if the authorization is valid, otherwise false
  */
 const authenticate = async ({ enabled, authOutput }, authorization) => {
-  console.log('Authorization:', authorization);
-  console.log('Enabled:', enabled);
-  console.log('Auth output:', authOutput);
-
   // Is security disabled?
   if (enabled === false) {
     return true;
@@ -29,25 +25,23 @@ const authenticate = async ({ enabled, authOutput }, authorization) => {
 
   // Extract the credentials from the authorization header
   const { username, password } = extractCredentials(authorization);
-  console.log('Username:', username);
-  console.log('Password:', password);
 
-  // 3. load authOutput content and check if the authorization is valid
+  if (!username || !password) {
+    console.error('Invalid credentials:', { username, password });
+
+    return false;
+  }
+
+  // Load output content and check if the authorization is valid
   try {
     const authOutputContent = await fs.readFile(authOutput, {
       encoding: 'utf-8',
     });
-    console.log('isAuthOutputExists:', authOutputContent);
     if (authOutputContent?.length > 0) {
       const authOutputArray = JSON.parse(authOutputContent);
-      console.log('authOutputArray:', authOutputArray);
       const auth = authOutputArray.find(({ username: u }) => u === username);
 
-      if (auth) {
-        const match = await bcrypt.compare(password, auth.password);
-
-        return match;
-      }
+      if (auth) return await bcrypt.compare(password, auth.password);
     }
   } catch (error) {
     console.error('Error reading the authSource:', error);
@@ -63,7 +57,7 @@ const authenticate = async ({ enabled, authOutput }, authorization) => {
  * @param {boolean} config.enabled - Indicates whether the security is enabled
  * @param {string} config.authSource - path to the source of the authentication data
  * @param {string} config.authOutput - path to the output of the authentication data
- * @returns {Promise<boolean>} -
+ * @returns {Promise<boolean>} - Returns true if the authentication is initialized successfully, otherwise false
  */
 const initAuthentication = async ({ enabled, authSource, authOutput }) => {
   // Is security disabled?
@@ -88,6 +82,7 @@ const initAuthentication = async ({ enabled, authSource, authOutput }) => {
       // Convert the string to an array
       /** @type {Array<{username:string, password:string}>} */
       const authSourceArray = JSON.parse(authSourceContent);
+      // Hash the passwords
       const authOutputArray = await Promise.all(
         authSourceArray?.map(async ({ username, password }) => {
           const hash = await bcrypt.hash(password, 10);
@@ -96,13 +91,12 @@ const initAuthentication = async ({ enabled, authSource, authOutput }) => {
         })
       );
       const authOutputContent = JSON.stringify(authOutputArray, null, 2);
-      console.log('authOutputContent:', authOutputContent);
       // Write the output file
       await fs.writeFile(authOutput, authOutputContent, {
         encoding: 'utf-8',
       });
       // Remove the source file
-      // await fs.unlink(authSource);
+      await fs.unlink(authSource);
 
       return true;
     }
@@ -114,23 +108,30 @@ const initAuthentication = async ({ enabled, authSource, authOutput }) => {
 };
 
 /**
- * Extract the credentials from the authorization header
- * @param {string} authorization - The authorization header
- * @returns {{username: string, password: string} | null} - The extracted credentials
+ * Extracts username and password from a Basic Authentication header
+ *
+ * @param {string} authorization - The Basic Authentication header value
+ * @returns {{username: string, password: string} | null} - An object with `username` and `password` properties, or `null` if an error occurs
  */
 const extractCredentials = (authorization) => {
-  try {
-    const basicAuth = authorization.split(' ').pop();
-    const [username, password] = Buffer.from(basicAuth, 'base64')
-      .toString()
-      .split(':');
+  if (!authorization || !authorization.startsWith('Basic ')) {
+    console.error('Invalid authorization header:', authorization);
 
-    return { username, password };
-  } catch (error) {
-    console.error('Error extracting credentials:', error);
+    return null;
   }
 
-  return null;
+  const basicAuth = authorization.split(' ').pop();
+  const [username, password] = Buffer.from(basicAuth, 'base64')
+    .toString()
+    .split(':');
+
+  if (!username || !password) {
+    console.error('Invalid Basic Auth credentials.');
+
+    return null;
+  }
+
+  return { username, password };
 };
 
 module.exports = {
