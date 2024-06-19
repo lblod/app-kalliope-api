@@ -18,14 +18,14 @@ const { isWhitelisted, authenticate } = require('./security/index');
 const consolidatedHandler = async (req, res) => {
   // 1. Verify IP address (allow only whitelisted addresses).
   if (!isWhitelisted(req.socket.remoteAddress)) {
-    res.status(403).send({ msg: 'Forbidden' });
+    res.status(403).json({ error: 'Forbidden' });
 
     return;
   }
 
   // 2. Authenticate credentials (Basic access authentication).
   if (!authenticate(req.headers.authorization)) {
-    res.status(401).send({ msg: 'Unauthorized' });
+    res.status(401).json({ error: 'Unauthorized' });
 
     return;
   }

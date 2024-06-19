@@ -40,7 +40,6 @@ describe('app', async () => {
         status: sinon.stub().returnsThis(),
         type: sinon.stub().returnsThis(),
         json: sinon.stub().returnsThis(),
-        send: sinon.stub().returnsThis(),
       };
       const { consolidatedHandler } = proxyquireStrict.load(
         'controller',
@@ -52,7 +51,6 @@ describe('app', async () => {
       sinon.assert.calledOnceWithMatch(res.status, 200);
       sinon.assert.calledOnceWithMatch(res.type, 'application/ld+json');
       sinon.assert.calledOnceWithMatch(res.json, {});
-      assert.deepEqual(res.send.callCount, 0);
     });
   });
 
@@ -68,15 +66,13 @@ describe('app', async () => {
       status: sinon.stub().returnsThis(),
       type: sinon.stub().returnsThis(),
       json: sinon.stub().returnsThis(),
-      send: sinon.stub().returnsThis(),
     };
 
     await consolidatedHandler(req, res);
 
     sinon.assert.calledOnceWithMatch(res.status, 403);
     assert.deepEqual(res.type.callCount, 0);
-    assert.deepEqual(res.json.callCount, 0);
-    sinon.assert.calledOnceWithMatch(res.send, { msg: 'Forbidden' });
+    sinon.assert.calledOnceWithMatch(res.json, { error: 'Forbidden' });
   });
 
   it('returns a 401 status code if the credentials are not authenticated', async () => {
@@ -91,14 +87,12 @@ describe('app', async () => {
       status: sinon.stub().returnsThis(),
       type: sinon.stub().returnsThis(),
       json: sinon.stub().returnsThis(),
-      send: sinon.stub().returnsThis(),
     };
 
     await consolidatedHandler(req, res);
 
     sinon.assert.calledOnceWithMatch(res.status, 401);
     assert.deepEqual(res.type.callCount, 0);
-    assert.deepEqual(res.json.callCount, 0);
-    sinon.assert.calledOnceWithMatch(res.send, { msg: 'Unauthorized' });
+    sinon.assert.calledOnceWithMatch(res.json, { error: 'Unauthorized' });
   });
 });
