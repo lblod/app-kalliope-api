@@ -1,4 +1,4 @@
-const fs = require('node:fs/promises');
+const { readFile, writeFile, unlink } = require('../utils/fs');
 const bcrypt = require('bcrypt');
 
 /**
@@ -25,27 +25,15 @@ const authenticate = async ({ enabled, authOutput }, authorization) => {
 
   // Extract the credentials from the authorization header
   const { username, password } = extractCredentials(authorization);
-
   if (!username || !password) {
     console.error('Invalid credentials:', { username, password });
 
     return false;
   }
 
-  // Load output content and check if the authorization is valid
-  try {
-    const authOutputContent = await fs.readFile(authOutput, {
-      encoding: 'utf-8',
-    });
-    if (authOutputContent?.length > 0) {
-      const authOutputArray = JSON.parse(authOutputContent);
-      const auth = authOutputArray.find(({ username: u }) => u === username);
-
-      if (auth) return await bcrypt.compare(password, auth.password);
-    }
-  } catch (error) {
-    console.error('Error reading the authSource:', error);
-  }
+  // Load encrypted credentials from the output file and compare them
+  const encryptedPassword = await loadEncryptedPassword(authOutput, username);
+  if (encryptedPassword) return await bcrypt.compare(password, encryptedPassword);
 
   return false;
 };
@@ -55,8 +43,8 @@ const authenticate = async ({ enabled, authOutput }, authorization) => {
  *
  * @param {object} config - The security configuration
  * @param {boolean} config.enabled - Indicates whether the security is enabled
- * @param {string} config.authSource - path to the source of the authentication data
- * @param {string} config.authOutput - path to the output of the authentication data
+ * @param {string} config.authSource - path to the source of the authentication data (plain text)
+ * @param {string} config.authOutput - path to the output of the authentication data (encrypted)
  * @returns {Promise<boolean>} - Returns true if the authentication is initialized successfully, otherwise false
  */
 const initAuthentication = async ({ enabled, authSource, authOutput }) => {
@@ -74,34 +62,25 @@ const initAuthentication = async ({ enabled, authSource, authOutput }) => {
 
   try {
     // Read source file
-    const authSourceContent = await fs.readFile(authSource, {
-      encoding: 'utf-8',
-    });
+    const authSourceContent = await readFile(authSource);
     // Is the source exists and has content?
     if (authSourceContent?.length > 0) {
       // Convert the string to an array
-      /** @type {Array<{username:string, password:string}>} */
       const authSourceArray = JSON.parse(authSourceContent);
       // Hash the passwords
-      const authOutputArray = await Promise.all(
-        authSourceArray?.map(async ({ username, password }) => {
-          const hash = await bcrypt.hash(password, 10);
-
-          return { username, password: hash };
-        })
-      );
-      const authOutputContent = JSON.stringify(authOutputArray, null, 2);
+      const authEncryptedArray = await encryptPasswords(authSourceArray);
       // Write the output file
-      await fs.writeFile(authOutput, authOutputContent, {
-        encoding: 'utf-8',
-      });
+      await writeFile(authOutput, JSON.stringify(authEncryptedArray, null, 2));
       // Remove the source file
-      await fs.unlink(authSource);
+      await unlink(authSource);
 
       return true;
     }
   } catch (error) {
-    console.error('Error reading the authSource:', error);
+    // Prevent logging an error if the source file does not exist
+    if (error.code !== 'ENOENT') {
+      console.error('Error initAuthentication:', error);
+    }
   }
 
   return false;
@@ -111,13 +90,13 @@ const initAuthentication = async ({ enabled, authSource, authOutput }) => {
  * Extracts username and password from a Basic Authentication header
  *
  * @param {string} authorization - The Basic Authentication header value
- * @returns {{username: string, password: string} | null} - An object with `username` and `password` properties, or `null` if an error occurs
+ * @returns {{username: string, password: string} | {}} - An object with `username` and `password` properties, or `null` if an error occurs
  */
 const extractCredentials = (authorization) => {
   if (!authorization || !authorization.startsWith('Basic ')) {
     console.error('Invalid authorization header:', authorization);
 
-    return null;
+    return {};
   }
 
   const basicAuth = authorization.split(' ').pop();
@@ -128,13 +107,57 @@ const extractCredentials = (authorization) => {
   if (!username || !password) {
     console.error('Invalid Basic Auth credentials.');
 
-    return null;
+    return {};
   }
 
   return { username, password };
 };
 
+/**
+ * Load the encrypted password from the authentication output file
+ * @param {string} path - The path to the authentication output file
+ * @param {string} user - The username to search for
+ * @returns {Promise<string | null>} - The encrypted password or null if not found
+ */
+const loadEncryptedPassword = async (path, user) => {
+  try {
+    const authOutputContent = await readFile(path);
+    if (authOutputContent?.length > 0) {
+      const authOutputArray = JSON.parse(authOutputContent);
+      const auth = authOutputArray.find(({ username }) => user === username);
+
+      if (auth) return auth.password;
+    }
+  } catch (error) {
+    console.error('Error reading the authSource:', error);
+  }
+
+  return null;
+}
+
+/**
+ * Hashes the passwords
+ * 
+ * @param {Array<{username:string, password:string}>} authSourceArray - The array of usernames and plain text passwords
+ * @returns {Promise<Array<{username:string, password:string}>>} - The array of usernames and hashed passwords
+ */
+const encryptPasswords = async (authSourceArray) => {
+  return await Promise.all(
+    authSourceArray?.map(async ({ username, password }) => {
+      const hash = await bcrypt.hash(password, 10);
+
+      return { username, password: hash };
+    })
+  );
+}
+
 module.exports = {
   authenticate,
   initAuthentication,
+  // For testing purposes
+  _test: {
+    extractCredentials,
+    loadEncryptedPassword,
+    encryptPasswords,
+  },
 };

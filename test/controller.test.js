@@ -5,21 +5,24 @@ const proxyquireStrict = require('proxyquire').noCallThru();
 const readFileStub = sinon.stub();
 // override dependencies of the controller
 const defaultSubs = {
-  './service.js': {
+  './env': {
+    DUMP_SUBJECT: 'http://example.com/dump',
+  },
+  './query': {
     fetchLatestDumpFilePath: async (_s) => 'share://path/to/file.ttl',
   },
-  'node:fs/promises': {
-    readFile: readFileStub,
+  './rdf-transformation/metadata': {
+    addMetadata: (graph) => graph,
   },
   './security/index': {
     isWhitelisted: () => true,
     authenticate: () => true,
   },
-  './rdf-transformation/metadata': {
-    addMetadata: (graph) => graph,
+  './utils/fs': {
+    readFile: readFileStub,
   },
-  './env': {
-    DUMP_SUBJECT: 'http://example.com/dump',
+  './utils/resolve-share-path': {
+    resolveSharePath: (_p) => '/share/path/to/file.ttl',
   },
 };
 const req = {
