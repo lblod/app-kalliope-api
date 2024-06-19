@@ -1,4 +1,5 @@
 const ipRangeCheck = require('ip-range-check');
+
 /**
  * Checks if the given IP address is whitelisted.
  *
@@ -9,15 +10,24 @@ const ipRangeCheck = require('ip-range-check');
  * @returns {boolean} - Returns true if the IP address is whitelisted, otherwise false.
  */
 const isWhitelisted = ({ enabled, allowedIpAddresses }, ip) => {
-  if (!enabled) {
+  console.log('IP:', ip);
+  console.log('Allowed IP addresses:', allowedIpAddresses);
+  console.log('Enabled:', enabled);
+
+  // Is security disabled?
+  if (enabled === false) {
     return true;
   }
 
-  if (!ipRangeCheck(ip, allowedIpAddresses)) {
+  // Is mandatory configuration missing?
+  if (!allowedIpAddresses) {
+    console.error('allowedIpAddresses is missing in the configuration');
+
     return false;
   }
 
-  return true;
+  // Is the IP address in the allowed IP addresses?
+  return ipRangeCheck(ip, allowedIpAddresses);
 };
 
 module.exports = {

@@ -24,7 +24,8 @@ const consolidatedHandler = async (req, res) => {
   }
 
   // 2. Authenticate credentials (Basic access authentication).
-  if (!authenticate(req.headers.authorization)) {
+  const authorized = await authenticate(req.headers.authorization);
+  if (!authorized) {
     res.status(401).json({ error: 'Unauthorized' });
 
     return;
