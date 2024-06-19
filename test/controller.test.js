@@ -18,6 +18,9 @@ const defaultSubs = {
   './rdf-transformation/metadata': {
     addMetadata: (graph) => graph,
   },
+  './env': {
+    DUMP_SUBJECT: 'http://example.com/dump',
+  },
 };
 const req = {
   socket: {
@@ -94,5 +97,27 @@ describe('app', async () => {
     sinon.assert.calledOnceWithMatch(res.status, 401);
     assert.deepEqual(res.type.callCount, 0);
     sinon.assert.calledOnceWithMatch(res.json, { error: 'Unauthorized' });
+  });
+
+  it('returns a 500 status code if DUMP_SUBJECT is not defined', async () => {
+    const { consolidatedHandler } = proxyquireStrict.load('controller', {
+      ...defaultSubs,
+      './env': {
+        DUMP_SUBJECT: undefined,
+      },
+    });
+    const res = {
+      status: sinon.stub().returnsThis(),
+      type: sinon.stub().returnsThis(),
+      json: sinon.stub().returnsThis(),
+    };
+
+    await consolidatedHandler(req, res);
+
+    sinon.assert.calledOnceWithMatch(res.status, 500);
+    assert.deepEqual(res.type.callCount, 0);
+    sinon.assert.calledOnceWithMatch(res.json, {
+      error: 'Internal Server Error',
+    });
   });
 });

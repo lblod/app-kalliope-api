@@ -1,8 +1,6 @@
 const { isWhitelisted } = require('./is-whitelisted');
 const { authenticate, initAuthentication } = require('./authenticate');
-
-const configurationPath =
-  process.env.SECURITY_CONFIG_PATH || '/config/security.json';
+const { SECURITY_CONFIG_PATH } = require('../env');
 
 let configuration = null;
 
@@ -13,7 +11,7 @@ let configuration = null;
  */
 const getConfiguration = () => {
   if (!configuration) {
-    configuration = require(configurationPath);
+    configuration = require(SECURITY_CONFIG_PATH);
   }
 
   return configuration;

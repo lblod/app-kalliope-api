@@ -47,4 +47,12 @@ describe('isWhitelisted', () => {
     const result = isWhitelisted(config, ip);
     assert.strictEqual(result, true);
   });
+  it('returns false if allowedIpAddresses is missing in the configuration', () => {
+    const config = {
+      enabled: true,
+    };
+    const ip = '125.19.23.12';
+    const result = isWhitelisted(config, ip);
+    assert.strictEqual(result, false);
+  });
 });

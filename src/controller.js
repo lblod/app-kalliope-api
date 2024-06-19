@@ -1,5 +1,5 @@
 const { fetchLatestDumpFilePath } = require('./service');
-const { ORGANIZATIONS_DUMP_SUBJECT } = require('./constant');
+const { DUMP_SUBJECT } = require('./env');
 const fs = require('node:fs/promises');
 const { turtleToJsonld } = require('./rdf-transformation/turtle-to-jsonld');
 const { addMetadata } = require('./rdf-transformation/metadata');
@@ -31,11 +31,15 @@ const consolidatedHandler = async (req, res) => {
     return;
   }
 
+  if (DUMP_SUBJECT === undefined) {
+    console.log('DUMP_SUBJECT is not defined');
+    res.status(500).json({ error: 'Internal Server Error' });
+
+    return;
+  }
   // Retrieve the latest dump file using a SPARQL query.
   console.log('Retrieving latest dump file...');
-  const latestDumpFilePath = await fetchLatestDumpFilePath(
-    ORGANIZATIONS_DUMP_SUBJECT
-  );
+  const latestDumpFilePath = await fetchLatestDumpFilePath(DUMP_SUBJECT);
   const turtle = await fs.readFile(
     latestDumpFilePath.replace('share://', '/share/'),
     { encoding: 'utf-8' }

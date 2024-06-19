@@ -22,6 +22,7 @@ Include the service in `docker-compose.yml`.
       LOGGING_LEVEL: "INFO"
       SPARQL_ENDPOINT: "http://database:8890/sparql"
       SECURITY_CONFIG_PATH: "/config/security.json"
+      DUMP_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/OrganizationsCacheGraphDump"
 ```
 
 ### Configure the dispatcher
