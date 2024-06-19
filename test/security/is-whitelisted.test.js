@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { isWhitelisted } = require('../../src/security/isWhitelisted');
+const { isWhitelisted } = require('security/is-whitelisted');
 
 describe('isWhitelisted', () => {
   it('returns false if the IP address is not whitelisted', () => {

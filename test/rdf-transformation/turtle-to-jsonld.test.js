@@ -1,7 +1,5 @@
 const assert = require('assert');
-const {
-  turtleToJsonld,
-} = require('../../src/utils/turtleToJsonld');
+const { turtleToJsonld } = require('rdf-transformation/turtle-to-jsonld');
 
 describe('turtleToJsonld', async () => {
   it('returns a JSON-LD object', async () => {

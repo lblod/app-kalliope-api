@@ -1,8 +1,8 @@
 const { fetchLatestDumpFilePath } = require('./service');
 const { ORGANIZATIONS_DUMP_SUBJECT } = require('./constant');
 const fs = require('node:fs/promises');
-const { turtleToJsonld } = require('./utils/turtleToJsonld');
-
+const { turtleToJsonld } = require('./rdf-transformation/turtle-to-jsonld');
+const { addMetadata } = require('./rdf-transformation/metadata');
 const { isWhitelisted, authenticate } = require('./security/index');
 
 /**
@@ -52,20 +52,6 @@ const consolidatedHandler = async (req, res) => {
   // 6. Return the converted result.
   console.log('Returning the converted result');
   res.status(200).type('application/ld+json').json(response);
-};
-
-const addMetadata = (consolidatedGraph, date) => {
-  return {
-    ...consolidatedGraph,
-    '@context': {
-      date: {
-        '@id': 'http://purl.org/dc/terms/date',
-        '@type': 'http://www.w3.org/2001/XMLSchema#dateTime',
-      },
-    },
-    '@id': 'http://mu.semte.ch/graphs/kalliope/consolidated',
-    date: date.toISOString(),
-  };
 };
 
 module.exports = {

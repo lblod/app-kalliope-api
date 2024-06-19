@@ -1,5 +1,4 @@
-
-const ipRangeCheck = require("ip-range-check");
+const ipRangeCheck = require('ip-range-check');
 /**
  * Checks if the given IP address is whitelisted.
  *
@@ -9,11 +8,11 @@ const ipRangeCheck = require("ip-range-check");
  * @param {string} ip - The IP address to check.
  * @returns {boolean} - Returns true if the IP address is whitelisted, otherwise false.
  */
-const isWhitelisted = ({enabled, allowedIpAddresses}, ip) => {
+const isWhitelisted = ({ enabled, allowedIpAddresses }, ip) => {
   if (!enabled) {
     return true;
   }
-  
+
   if (!ipRangeCheck(ip, allowedIpAddresses)) {
     return false;
   }

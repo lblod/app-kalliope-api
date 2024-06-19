@@ -4,7 +4,7 @@
   "description": "Provides a JSON-LD representation of the consolidated [delta-notifier](https://github.com/mu-semtech/delta-notifier) messages",
   "main": "app.js",
   "scripts": {
-    "test": "mocha --require @babel/register --recursive",
+    "test": "NODE_PATH=./src mocha --require @babel/register --recursive",
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --cache --fix",
     "lint:prettier": "prettier --check .",

@@ -1,4 +1,4 @@
-const { isWhitelisted } = require('./isWhitelisted');
+const { isWhitelisted } = require('./is-whitelisted');
 const { authenticate } = require('./authenticate');
 
 const configurationPath =
