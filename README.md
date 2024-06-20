@@ -18,11 +18,10 @@ Include the service in `docker-compose.yml`.
       - ./data/files:/share
       - ./config/kalliope:/config
     environment:
-      SERVER_PORT: "80"
-      LOGGING_LEVEL: "INFO"
-      SPARQL_ENDPOINT: "http://database:8890/sparql"
       SECURITY_CONFIG_PATH: "/config/security.json"
       DUMP_SUBJECT: "http://data.lblod.info/datasets/delta-producer/dumps/OrganizationsCacheGraphDump"
+    links:
+      - db:database
 ```
 
 ### Configure the dispatcher
@@ -30,64 +29,50 @@ Include the service in `docker-compose.yml`.
 Add the jsonld-delta-service routes to the [dispatcher](https://github.com/mu-semtech/mu-dispatcher) configuration.
 e.g.:
 
-```
-...
-match "/v3/api-docs/*path", %{ layer: :api_services, accept: %{ json: true } } do
-    forward conn, path, "http://jsonld-delta-service/v3/api-docs/"
-  end
-
-  match "/consolidated/*path", %{ layer: :api_services, accept: %{ json: true } } do
-    forward conn, path, "http://jsonld-delta-service/consolidated/"
-  end
-...
-
-
+```elixir
+match "/consolidated/*path", %{ layer: :api_services, accept: %{ json: true } } do
+  forward conn, path, "http://jsonld-delta-service/consolidated/"
+end
 ```
 
 ### Add security config
 
-- Create a file under `/config/kalliope/security.yml`
+#### 1. Create the Configuration File:
+
+- Create a file at `/config/kalliope/security.json`
 - Paste the following:
 
-```
- application:
- security:
-   enabled: true
-   source: /config/source.json
-   output: /config/out.json
-   allowedIpAddresses:
-     - 10.10.10.10 # list of whitelisted ips
-server:
- forward-headers-strategy: NATIVE
- tomcat:
-   remote-ip-header: x-real-ip # letsencrypt proxy
-
+```json
+{
+  "enabled": true,
+  "allowedIpAddresses": [
+    "127.0.0.1",
+    "172.18.0.0/16"
+  ],
+  "authSource": "/config/source.json",
+  "authOutput": "/config/output.json"
+}
 ```
 
-- If it's the first time app is started in this development server, you need to create the credentials.
-- Create a file under `/config/kalliope/source.json`
-- Add the users (change values accordingly). The file will be automatically deleted at startup and replaced by an
-  encrypted one under `config/kalliope/out.json`
-- Example of `/config/kalliope/source.json` :
+#### 2. Initialize Credentials (First-time Setup):
 
-```
-     [
-    {
-      "username": "boris",
-      "password": "5678",
-      "roles": [
-        "ADMIN"
-      ]
-    },
-    {
-      "username": "nordine",
-      "password": "1234",
-      "roles": [
-        "USER"
-      ]
-    }
-  ]
+- If this is the first time the application is being started on server, you need to create the credentials.
+- Create a file at `/config/kalliope/source.json`
+- Add the user credentials (modify the values as needed). This file will be automatically deleted at startup and replaced with an encrypted version located at `/config/kalliope/output.json`.
 
+**Example of `/config/kalliope/source.json`:**
+
+```json
+[
+  {
+    "username": "boris",
+    "password": "5678"
+  },
+  {
+    "username": "nordine",
+    "password": "1234"
+  }
+]
 ```
 
 ### Boot up the system
@@ -101,14 +86,11 @@ You can shut down using `docker-compose stop` and remove everything using `docke
 
 ## Usage
 
-OpenAPI documentation is available via `/v3/api-docs/`
-
 ### `/consolidated`
 
 The JSON-LD response contains:
 
-- A named graph with the consolidated representation of all delta messages. i.e. the result of applying all inserted and
-  delete messages.
+- A named graph with the consolidated representation of all delta messages. i.e. the result of applying all inserted and delete messages.
 - The default graph contains a timestamp to be used in subsequent requests
 
 ```json
@@ -124,25 +106,3 @@ The JSON-LD response contains:
   }
 }
 ```
-
-## Development
-
-### Debugging
-
-To debug the service, you can comment `# image: lblod/jsonld-delta-service:0.5.6` in `docker-compose.yml` and use the following configuration in `docker-compose.dev.yml`:
-
-```
-services:
-  kalliope-api:
-    build: ../jsonld-delta-service # path to the service relative to the docker-compose file
-    environment:
-      NODE_ENV: "development" # set the environment to development
-    ports:
-      - 9229:9229 # expose the debugging port
-```
-
-## Tools
-
-- **ESLint** is used to lint your code and enforce code quality.
-- **Prettier** is used to format your code consistently.
-- **JSDoc** is used to add type annotations and generate documentation.
