@@ -78,4 +78,35 @@ describe('turtleToJsonld', async () => {
 
     assert.deepStrictEqual(jsonld, expected);
   });
+
+  it('it handels multiline literals', async () => {
+    const ttlString = `
+<http://data.lblod.info/id/veranderingsgebeurtenissen/6380AF334B5FEAF28DEDE97C> <http://purl.org/dc/terms/description> """Information from Alex Johnson: This is the historical library. It was believed to be an independent research facility with its own funding, similar to the main university library, leading to separate financial statements until it was discovered that this arrangement was incorrect. The expenses for the historical library are now included in the annual budget of the Central Library, as it should be.
+Information from the city council: This was a special collection within the library, part of the Central University Library system.
+
+There was no formal dissolution of its status because it was never officially recognized as independent. The data are therefore hypothetical!
+is nu verantwoordelijk.
+""".
+<http://data.lblod.info/id/veranderingsgebeurtenissen/637C96F34B5FEAF28DEDE8FA> <http://purl.org/dc/terms/description> """erkenning werd onontvankelijk verklaard omdat het dossier niet werd ingediend door het RO""".
+`;
+    const expected = {
+      '@graph': [
+        {
+          '@id':
+            'http://data.lblod.info/id/veranderingsgebeurtenissen/637C96F34B5FEAF28DEDE8FA',
+          'http://purl.org/dc/terms/description':
+            'erkenning werd onontvankelijk verklaard omdat het dossier niet werd ingediend door het RO',
+        },
+        {
+          '@id':
+            'http://data.lblod.info/id/veranderingsgebeurtenissen/6380AF334B5FEAF28DEDE97C',
+          'http://purl.org/dc/terms/description':
+            'Information from Alex Johnson: This is the historical library. It was believed to be an independent research facility with its own funding, similar to the main university library, leading to separate financial statements until it was discovered that this arrangement was incorrect. The expenses for the historical library are now included in the annual budget of the Central Library, as it should be.\nInformation from the city council: This was a special collection within the library, part of the Central University Library system.\n\nThere was no formal dissolution of its status because it was never officially recognized as independent. The data are therefore hypothetical!\nis nu verantwoordelijk.\n',
+        },
+      ],
+    };
+    const jsonld = await turtleToJsonld(ttlString);
+
+    assert.deepStrictEqual(jsonld, expected);
+  });
 });

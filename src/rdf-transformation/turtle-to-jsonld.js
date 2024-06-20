@@ -9,9 +9,9 @@ const jsonld = require('jsonld');
  */
 const turtleToJsonld = async (ttlString) => {
   try {
-    const deduplicatedTtlString = deduplicateTurtleString(ttlString);
-    const quads = await parseTurtle(deduplicatedTtlString);
-    const jsonLdArray = await jsonld.fromRDF([...quads]);
+    const quads = await parseTurtle(ttlString);
+    const deduplicatedQuads = deduplicateQuads(quads);
+    const jsonLdArray = await jsonld.fromRDF([...deduplicatedQuads]);
     const compacted = await jsonld.compact(jsonLdArray, {});
 
     return compacted;
@@ -44,18 +44,13 @@ const parseTurtle = async (ttl) => {
 };
 
 /**
- * Deduplicates a Turtle string (dumb solution)
- * It assumes that each line represents a unique simple triple
- *
- * @param {string} ttlString - The Turtle string to deduplicate
- * @returns {string} The deduplicated Turtle string
+ * Deduplicates an array of quads
+ * @param {Array} quads - The array of quads to deduplicate
+ * @returns {Array} The deduplicated array of quads
  */
-const deduplicateTurtleString = (ttlString) => {
-  const ttlArray = ttlString.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-  const uniqueTtlArray = Array.from(new Set(ttlArray));
-
-  return uniqueTtlArray.join('\n');
-}
+const deduplicateQuads = (quads) => {
+  return Array.from(new Set(quads.map(JSON.stringify))).map(JSON.parse);
+};
 
 module.exports = {
   turtleToJsonld,
