@@ -33,7 +33,8 @@ const authenticate = async ({ enabled, authOutput }, authorization) => {
 
   // Load encrypted credentials from the output file and compare them
   const encryptedPassword = await loadEncryptedPassword(authOutput, username);
-  if (encryptedPassword) return await bcrypt.compare(password, encryptedPassword);
+  if (encryptedPassword)
+    return await bcrypt.compare(password, encryptedPassword);
 
   return false;
 };
@@ -133,11 +134,11 @@ const loadEncryptedPassword = async (path, user) => {
   }
 
   return null;
-}
+};
 
 /**
  * Hashes the passwords
- * 
+ *
  * @param {Array<{username:string, password:string}>} authSourceArray - The array of usernames and plain text passwords
  * @returns {Promise<Array<{username:string, password:string}>>} - The array of usernames and hashed passwords
  */
@@ -149,7 +150,7 @@ const encryptPasswords = async (authSourceArray) => {
       return { username, password: hash };
     })
   );
-}
+};
 
 module.exports = {
   authenticate,
