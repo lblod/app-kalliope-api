@@ -1,12 +1,8 @@
 const assert = require('assert');
 const sinon = require('sinon');
 const bcrypt = require('bcrypt');
-const hashStub = sinon.stub(bcrypt, 'hash');
-const compareStub = sinon.stub(bcrypt, 'compare');
 const fs = require('utils/fs');
-const readFileStub = sinon.stub(fs, 'readFile');
-const writeFileStub = sinon.stub(fs, 'writeFile');
-const unlinkStub = sinon.stub(fs, 'unlink');
+
 const {
   authenticate,
   initAuthentication,
@@ -14,12 +10,20 @@ const {
 } = require('security/authenticate');
 
 describe('authenticate', () => {
+  let hashStub;
+  let compareStub;
+  let readFileStub;
+  let writeFileStub;
+  let unlinkStub;
+  beforeEach(() => {
+    hashStub = sinon.stub(bcrypt, 'hash');
+    compareStub = sinon.stub(bcrypt, 'compare');
+    readFileStub = sinon.stub(fs, 'readFile');
+    writeFileStub = sinon.stub(fs, 'writeFile');
+    unlinkStub = sinon.stub(fs, 'unlink');
+  });
   afterEach(() => {
-    hashStub.reset();
-    compareStub.reset();
-    readFileStub.reset();
-    writeFileStub.reset();
-    unlinkStub.reset();
+    sinon.restore();
   });
   describe('authenticate', () => {
     it('returns true if the authorization is valid', async () => {

@@ -1,4 +1,4 @@
-const { readFile, writeFile, unlink } = require('../utils/fs');
+const fs = require('../utils/fs');
 const bcrypt = require('bcrypt');
 
 /**
@@ -63,7 +63,7 @@ const initAuthentication = async ({ enabled, authSource, authOutput }) => {
 
   try {
     // Read source file
-    const authSourceContent = await readFile(authSource);
+    const authSourceContent = await fs.readFile(authSource);
     // Is the source exists and has content?
     if (authSourceContent?.length > 0) {
       // Convert the string to an array
@@ -71,9 +71,12 @@ const initAuthentication = async ({ enabled, authSource, authOutput }) => {
       // Hash the passwords
       const authEncryptedArray = await encryptPasswords(authSourceArray);
       // Write the output file
-      await writeFile(authOutput, JSON.stringify(authEncryptedArray, null, 2));
+      await fs.writeFile(
+        authOutput,
+        JSON.stringify(authEncryptedArray, null, 2)
+      );
       // Remove the source file
-      await unlink(authSource);
+      await fs.unlink(authSource);
 
       return true;
     }
@@ -122,7 +125,7 @@ const extractCredentials = (authorization) => {
  */
 const loadEncryptedPassword = async (path, user) => {
   try {
-    const authOutputContent = await readFile(path);
+    const authOutputContent = await fs.readFile(path);
     if (authOutputContent?.length > 0) {
       const authOutputArray = JSON.parse(authOutputContent);
       const auth = authOutputArray.find(({ username }) => user === username);

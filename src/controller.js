@@ -1,4 +1,4 @@
-const { DUMP_SUBJECT } = require('./env');
+const env = require('./env');
 const { fetchLatestDumpFilePath } = require('./query');
 const { turtleToJsonld } = require('./rdf-transformation/turtle-to-jsonld');
 const { addMetadata } = require('./rdf-transformation/metadata');
@@ -35,7 +35,7 @@ const consolidatedHandler = async (req, res) => {
   }
 
   // Check if the DUMP_SUBJECT is defined
-  if (DUMP_SUBJECT === undefined) {
+  if (env.DUMP_SUBJECT === undefined) {
     console.error('DUMP_SUBJECT is not defined');
     res.status(500).json({ error: 'Internal Server Error' });
 
@@ -43,7 +43,7 @@ const consolidatedHandler = async (req, res) => {
   }
 
   // Retrieve the latest dump file
-  const latestDumpFilePath = await fetchLatestDumpFilePath(DUMP_SUBJECT);
+  const latestDumpFilePath = await fetchLatestDumpFilePath(env.DUMP_SUBJECT);
   const localDumpFilePath = resolveSharePath(latestDumpFilePath);
   const turtle = await readFile(localDumpFilePath);
 
