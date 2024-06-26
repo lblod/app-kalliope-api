@@ -5,7 +5,7 @@ const { initSecurity } = require('./src/security/index.js');
 const initService = async () => {
   await initSecurity();
 
-  // Enable trust proxy. Use a specific number if your proxy chain is known.
+  // Enable trust proxy. This will allow us to get the real IP address of the client
   app.set('trust proxy', true);
 
   app.get('/consolidated', consolidatedHandler);
