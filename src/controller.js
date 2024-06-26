@@ -18,10 +18,10 @@ const { readFile } = require('./utils/fs');
  */
 const consolidatedHandler = async (req, res) => {
   console.log('Handling consolidated request...');
+  console.log(req);
 
   // Verify IP address, allow only whitelisted addresses
-  if (!isWhitelisted(req.socket.remoteAddress)) {
-    // console.log(req);
+  if (!isWhitelisted(req.ip)) {
     console.error('Forbidden request from IP address: ', req.ip);
     console.error('Forbidden request from IP address: ', req.socket.remoteAddress);
     res.status(403).json({ error: 'Forbidden' });
