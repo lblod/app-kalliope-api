@@ -5,6 +5,9 @@ const { initSecurity } = require('./src/security/index.js');
 const initService = async () => {
   await initSecurity();
 
+  // Enable trust proxy. Use a specific number if your proxy chain is known.
+  app.set('trust proxy', true);
+
   app.get('/consolidated', consolidatedHandler);
 
   app.use(errorHandler);
