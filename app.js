@@ -17,11 +17,16 @@ const initService = async () => {
    * consider the Node.js service unresponsive.
    *
    * To prevent this, the middleware limits the endpoint to process only one request at a time.
-   * If a request is already being processed, it returns a 429 status code (Too Many Requests). 
-   * 
+   * If a request is already being processed, it returns a 429 status code (Too Many Requests).
+   *
    * Related to https://binnenland.atlassian.net/browse/OP-3172?focusedCommentId=108335
    */
-  app.get('/consolidated', createSingleRequestEnforcer, consolidatedHandler);
+  const singleRequestEnforcerMiddleware = createSingleRequestEnforcer();
+  app.get(
+    '/consolidated',
+    singleRequestEnforcerMiddleware,
+    consolidatedHandler
+  );
 
   app.use(errorHandler);
 
