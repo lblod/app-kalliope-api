@@ -22,26 +22,23 @@ const consolidatedHandler = async (req, res) => {
   // Verify IP address, allow only whitelisted addresses
   if (!isWhitelisted(req.ip)) {
     console.error('Forbidden request from IP address: ', req.ip);
-    res.status(403).json({ error: 'Forbidden' });
 
-    return;
+    return res.status(403).json({ error: 'Forbidden' });
   }
 
   // Authenticate credentials (Basic access authentication).
   const authorized = await authenticate(req.headers.authorization);
   if (!authorized) {
     console.error('Unauthorized request');
-    res.status(401).json({ error: 'Unauthorized' });
 
-    return;
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   // Check if the DUMP_SUBJECT is defined
   if (env.DUMP_SUBJECT === undefined) {
     console.error('DUMP_SUBJECT is not defined');
-    res.status(500).json({ error: 'Internal Server Error' });
 
-    return;
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 
   // Retrieve the latest dump file

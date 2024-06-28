@@ -1,21 +1,27 @@
 const createSingleRequestEnforcer = () => {
-  let isRouteProcessing = false;
+  let isProcessing = false;
+
+  const resetProcessing = () => {
+    isProcessing = false;
+  };
 
   return async (req, res, next) => {
-    if (isRouteProcessing) {
+    if (isProcessing) {
+      console.error('Too many requests');
+
       return res.status(429).json({
         error: 'Too Many Requests',
         message: 'Only one request is allowed at a time.',
       });
     }
 
-    isRouteProcessing = true;
+    isProcessing = true;
 
-    try {
-      await next();
-    } finally {
-      isRouteProcessing = false;
-    }
+    // Reset the processing flag when the response is finished or closed
+    res.on('finish', resetProcessing);
+    res.on('close', resetProcessing);
+
+    next();
   };
 };
 
