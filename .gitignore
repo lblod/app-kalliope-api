@@ -1,20 +1,24 @@
-# Virtuoso files /data/db
-/data/db/*
-!/data/db/virtuoso.ini
-!/data/db/toLoad
-!/data/db/toLoad/*
+# Logs
+logs
+*.log
 
-docker-compose.override.yml
+# Dependency directories
+node_modules/
 
-.factorypath
-.classpath
-.project
-.settings/
+# Build output
+dist/
+build/
 
-target/
-test/data/
-.vscode/settings.json
-.vscode/launch.json
+# Environment variables
+.env
 
-.idea
-*.iml
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Misc
+.eslintcache
